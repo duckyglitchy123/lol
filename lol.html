@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black POU (BP) & Wheat Trading</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            /* Light gray background */
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #9ca3af;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-2xl border border-gray-200">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Black POU (BP) & Wheat Trading</h1>
+
+        <!-- User Wallet ID -->
+        <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-center mb-6">
+            <p class="text-sm font-medium text-indigo-600">Your Wallet Address (Unique Browser ID):</p>
+            <p id="userWalletId" class="text-lg font-semibold text-indigo-800 break-words">Generating...</p>
+            <button id="copyWalletIdBtn"
+                class="mt-2 text-xs text-indigo-500 hover:text-indigo-700 focus:outline-none">Copy Address</button>
+            <p class="mt-2 text-xs text-indigo-500">This address is unique to your browser. Your data is saved here.</p>
+        </div>
+
+        <!-- Status Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                <p class="text-sm font-medium text-blue-600">Your BP Balance</p>
+                <p id="bpBalance" class="text-2xl font-semibold text-blue-800 mt-1">0.00 BP</p>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                <p class="text-sm font-medium text-green-600">Wheat Price</p>
+                <p id="wheatPrice" class="text-2xl font-semibold text-green-800 mt-1">0.00 BP/KG</p>
+            </div>
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                <p class="text-sm font-medium text-purple-600">Your Wheat Holdings</p>
+                <p id="wheatHoldings" class="text-2xl font-semibold text-purple-800 mt-1">0.00 KG</p>
+            </div>
+        </div>
+
+        <!-- Wallet Operations -->
+        <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Wallet Operations</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="sendAmount" class="block text-sm font-medium text-gray-700 mb-1">BP Amount to
+                        Transfer:</label>
+                    <input type="number" id="sendAmount" placeholder="e.g., 50"
+                        class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 mb-2">
+                    <button id="sendBpBtn"
+                        class="mt-3 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-sm">Generate
+                        Transfer Code</button>
+                    <div id="transferCodeOutput" class="mt-4 p-3 bg-blue-100 border border-blue-300 rounded-md hidden">
+                        <p class="text-sm font-semibold text-blue-800 mb-2">Your Transfer Code:</p>
+                        <input type="text" id="generatedCode"
+                            class="w-full p-2 border border-blue-400 rounded-md text-blue-900 font-mono text-center mb-2"
+                            readonly>
+                        <button id="copyCodeBtn"
+                            class="w-full bg-blue-500 text-white py-1 px-2 rounded-md text-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition duration-150 ease-in-out">Copy
+                            Code</button>
+                        <a id="whatsappShareLink" href="#" target="_blank"
+                            class="mt-2 block w-full bg-green-500 text-white py-1 px-2 rounded-md text-sm text-center hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition duration-150 ease-in-out no-underline">Share
+                            on WhatsApp</a>
+                        <p class="mt-2 text-xs text-blue-700">Share this code with the recipient. Your BP is deducted
+                            immediately.</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Redeem Transfer Code:</label>
+                    <p class="text-sm text-gray-500 mb-3">Paste a transfer code you received from someone else to redeem
+                        BP.</p>
+                    <input type="text" id="redeemCodeInput" placeholder="Paste transfer code here"
+                        class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                    <button id="redeemBpBtn"
+                        class="mt-3 w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-sm">Redeem
+                        Code</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Section -->
+        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Wheat Trading</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="buyBpAmount" class="block text-sm font-medium text-gray-700 mb-1">Invest BP to Buy
+                        Wheat:</label>
+                    <input type="number" id="buyBpAmount" placeholder="e.g., 200"
+                        class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                    <button id="buyWheatBtn"
+                        class="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-sm">Buy
+                        Wheat</button>
+                </div>
+                <div>
+                    <label for="sellWheatAmount" class="block text-sm font-medium text-gray-700 mb-1">Sell Wheat
+                        (KG):</label>
+                    <input type="number" id="sellWheatAmount" placeholder="e.g., 5"
+                        class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
+                    <button id="sellWheatBtn"
+                        class="mt-3 w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition duration-150 ease-in-out shadow-sm">Sell
+                        Wheat</button>
+                </div>
+            </div>
+            <!-- Removed Fluctuating Price button -->
+        </div>
+
+        <!-- Message Display -->
+        <div id="messageBox"
+            class="mt-6 p-3 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg text-sm text-center min-h-[40px] flex items-center justify-center">
+            Welcome to the Black POU (BP) & Wheat Trading App!
+        </div>
+    </div>
+
+    <script>
+        // Use localStorage to store state for persistent data across browser closures
+        const LOCAL_WALLET_ID_KEY = 'bp_wallet_id_local';
+        const LOCAL_BP_BALANCE_KEY = 'bp_balance_local';
+        const LOCAL_WHEAT_QUANTITY_KEY = 'wheat_quantity_local';
+        const LOCAL_WHEAT_PRICE_KEY = 'wheat_price_local';
+        const LOCAL_REDEEMED_CODES_KEY = 'bp_redeemed_codes_local'; // New key for tracking redeemed codes
+
+        // Utility to get a unique ID for the browser instance (will persist)
+        function getOrCreateWalletId() {
+            let id = localStorage.getItem(LOCAL_WALLET_ID_KEY);
+            if (!id) {
+                // Generate a new unique ID for the browser
+                id = 'browser_' + crypto.randomUUID();
+                localStorage.setItem(LOCAL_WALLET_ID_KEY, id);
+            }
+            return id;
+        }
+
+        // Utility to generate a random string of alphabetical characters
+        function generateRandomAlpha(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+        // Wallet class: Manages the user's Black POU (BP) currency balance locally.
+        class Wallet {
+            constructor() {
+                this.id = getOrCreateWalletId();
+                // Load from localStorage or initialize with 30 BP for new instance
+                let storedBalance = parseFloat(localStorage.getItem(LOCAL_BP_BALANCE_KEY));
+                this.balance = isNaN(storedBalance) ? 30.0 : storedBalance;
+
+                // Load redeemed codes
+                let storedRedeemedCodes = localStorage.getItem(LOCAL_REDEEMED_CODES_KEY);
+                this.redeemedCodes = storedRedeemedCodes ? new Set(JSON.parse(storedRedeemedCodes)) : new Set();
+
+                this.updateDisplay();
+                if (isNaN(storedBalance)) { // If it's a new browser instance/first load
+                    this.showMessage("New account created! You received 30.00 BP for free.");
+                } else {
+                    this.showMessage("Welcome back! Your data has been loaded.");
+                }
+            }
+
+            getId() {
+                return this.id;
+            }
+
+            getBalance() {
+                return this.balance;
+            }
+
+            // Deducts BP from the local balance and saves to localStorage.
+            deductBp(amount) {
+                const numAmount = parseFloat(amount);
+                if (isNaN(numAmount) || numAmount <= 0) {
+                    this.showMessage("Error: Amount to deduct must be a positive number.");
+                    return false;
+                }
+                if (this.balance >= numAmount) {
+                    this.balance -= numAmount;
+                    this.saveState(); // Save to localStorage
+                    this.updateDisplay(); // Update UI
+                    return true;
+                } else {
+                    this.showMessage(`Insufficient funds. You have ${this.balance.toFixed(2)} BP.`);
+                    return false;
+                }
+            }
+
+            // Adds BP to the local balance and saves to localStorage.
+            addBp(amount) {
+                const numAmount = parseFloat(amount);
+                if (isNaN(numAmount) || numAmount <= 0) {
+                    this.showMessage("Error: Amount to add must be a positive number.");
+                    return false;
+                }
+                this.balance += numAmount;
+                this.saveState(); // Save to localStorage
+                this.updateDisplay(); // Update UI
+                return true;
+            }
+
+            // Generates a transfer code after deducting amount from sender's balance
+            generateTransferCode(amount) {
+                const numAmount = parseFloat(amount);
+                if (isNaN(numAmount) || numAmount <= 0) {
+                    this.showMessage("Error: Transfer amount must be a positive number.");
+                    return null;
+                }
+                if (!this.deductBp(numAmount)) { // Deduct first
+                    return null; // Deduction failed due to insufficient funds
+                }
+
+                // Format: [10_ALPHA_CHARS].[AMOUNT_PADDED].[UNIQUE_ID_PART]
+                const alphaPart = generateRandomAlpha(10);
+                // Convert to integer, pad to 5 digits (e.g., 1 BP -> 00100, 1.5 BP -> 00150)
+                const amountPart = (numAmount * 1000).toFixed(0).padStart(5, '0');
+                const uniquePart = Math.floor(Math.random() * 1000000000000).toString(16); // A large random number in hex
+
+                const transferCode = `${alphaPart}.${amountPart}.${uniquePart}`;
+                this.showMessage(`Successfully generated transfer code. Your BP balance updated.`);
+                return transferCode;
+            }
+
+            // Redeems a transfer code
+            redeemTransferCode(code) {
+                if (this.redeemedCodes.has(code)) {
+                    this.showMessage("Error: This code has already been redeemed in this browser.");
+                    return false;
+                }
+
+                const parts = code.split('.');
+                if (parts.length !== 3) {
+                    this.showMessage("Error: Invalid transfer code format.");
+                    return false;
+                }
+
+                const amountPart = parts[1];
+                const transferAmount = parseFloat(amountPart) / 1000; // Convert 00100 back to 1.00 BP
+
+                if (isNaN(transferAmount) || transferAmount <= 0) {
+                    this.showMessage("Error: Invalid amount in transfer code.");
+                    return false;
+                }
+
+                if (this.addBp(transferAmount)) {
+                    this.redeemedCodes.add(code);
+                    this.saveState(); // Save updated balance and redeemed codes
+                    this.showMessage(`Successfully redeemed ${transferAmount.toFixed(2)} BP!`);
+                    return true;
+                }
+                return false; // Should not happen if addBp handles errors properly
+            }
+
+            // Saves current balance and redeemed codes to localStorage
+            saveState() {
+                localStorage.setItem(LOCAL_BP_BALANCE_KEY, this.balance.toFixed(2));
+                localStorage.setItem(LOCAL_REDEEMED_CODES_KEY, JSON.stringify(Array.from(this.redeemedCodes)));
+            }
+
+            // Updates the UI display for BP balance and wallet ID.
+            updateDisplay() {
+                document.getElementById('bpBalance').innerText = `${this.balance.toFixed(2)} BP`;
+                document.getElementById('userWalletId').innerText = this.id;
+            }
+
+            // Displays messages in the message box.
+            showMessage(message) {
+                const messageBox = document.getElementById('messageBox');
+                messageBox.innerText = message;
+                // Add/remove classes for visual feedback (error/success)
+                if (message.includes('Error') || message.includes('Insufficient')) {
+                    messageBox.classList.remove('bg-gray-100', 'text-gray-700');
+                    messageBox.classList.add('bg-red-100', 'text-red-700', 'border-red-400');
+                } else {
+                    messageBox.classList.remove('bg-red-100', 'text-red-700', 'border-red-400');
+                    messageBox.classList.add('bg-gray-100', 'text-gray-700');
+                }
+            }
+        }
+
+        // Market class: Manages the trading of assets, specifically Wheat, locally.
+        class Market {
+            constructor() {
+                // Load from localStorage or initialize
+                let storedWheatQuantity = parseFloat(localStorage.getItem(LOCAL_WHEAT_QUANTITY_KEY));
+                let storedWheatPrice = parseFloat(localStorage.getItem(LOCAL_WHEAT_PRICE_KEY));
+
+                this.wheatQuantity = isNaN(storedWheatQuantity) ? 0.0 : storedWheatQuantity;
+                // Wheat price is now fixed as fluctuation is removed
+                this.wheatPrice = isNaN(storedWheatPrice) ? 10.0 : storedWheatPrice;
+
+                this.updateDisplay();
+                walletInstance.showMessage(`Market initialized. Wheat price: ${this.wheatPrice.toFixed(2)} BP/KG.`);
+            }
+
+            getWheatPrice() {
+                return this.wheatPrice;
+            }
+
+            getWheatQuantity() {
+                return this.wheatQuantity;
+            }
+
+            // Removed fluctuateWheatPrice method
+            // The price will now remain fixed at its initial value or what was last saved.
+
+            // Allows the user to invest BP to buy Wheat, updating local holdings and BP balance.
+            buyWheat(bpAmount, wallet) {
+                const numBpAmount = parseFloat(bpAmount);
+                if (isNaN(numBpAmount) || numBpAmount <= 0) {
+                    wallet.showMessage("Error: Amount of BP to invest must be a positive number.");
+                    return false;
+                }
+
+                if (wallet.getBalance() < numBpAmount) {
+                    wallet.showMessage(`Insufficient BP to buy wheat. You have ${wallet.getBalance().toFixed(2)} BP.`);
+                    return false;
+                }
+
+                const wheatToBuy = numBpAmount / this.wheatPrice;
+
+                // Deduct BP from the wallet (this will also update localStorage)
+                if (wallet.deductBp(numBpAmount)) {
+                    this.wheatQuantity += wheatToBuy;
+                    this.saveState(); // Save to localStorage
+                    this.updateDisplay(); // Update UI
+                    wallet.showMessage(`Successfully bought ${wheatToBuy.toFixed(2)} KG of Wheat for ${numBpAmount.toFixed(2)} BP.`);
+                    return true;
+                }
+                return false;
+            }
+
+            // Allows the user to sell a specified amount of Wheat for BP, updating local holdings and balance.
+            sellWheat(wheatAmount, wallet) {
+                const numWheatAmount = parseFloat(wheatAmount);
+                if (isNaN(numWheatAmount) || numWheatAmount <= 0) {
+                    wallet.showMessage("Error: Amount of Wheat to sell must be a positive number.");
+                    return false;
+                }
+
+                if (this.wheatQuantity < numWheatAmount) {
+                    wallet.showMessage(`Insufficient Wheat to sell. You have ${this.wheatQuantity.toFixed(2)} KG.`);
+                    return false;
+                }
+
+                const bpToReceive = numWheatAmount * this.wheatPrice;
+                this.wheatQuantity -= numWheatAmount;
+
+                // Add BP to the wallet (this will also update localStorage)
+                if (wallet.addBp(bpToReceive)) {
+                    this.saveState(); // Save to localStorage
+                    this.updateDisplay(); // Update UI
+                    wallet.showMessage(`Successfully sold ${numWheatAmount.toFixed(2)} KG of Wheat for ${bpToReceive.toFixed(2)} BP.`);
+                    return true;
+                }
+                return false;
+            }
+
+            // Saves current wheat quantity and price to localStorage
+            saveState() {
+                localStorage.setItem(LOCAL_WHEAT_QUANTITY_KEY, this.wheatQuantity.toFixed(2));
+                localStorage.setItem(LOCAL_WHEAT_PRICE_KEY, this.wheatPrice.toFixed(2));
+            }
+
+            // Updates the UI display for Wheat price and user's Wheat holdings.
+            updateDisplay() {
+                document.getElementById('wheatPrice').innerText = `${this.wheatPrice.toFixed(2)} BP/KG`;
+                document.getElementById('wheatHoldings').innerText = `${this.wheatQuantity.toFixed(2)} KG`;
+            }
+        }
+
+        // Global instances
+        let walletInstance;
+        let marketInstance;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            walletInstance = new Wallet();
+            marketInstance = new Market();
+
+            // Event Listeners for buttons
+
+            // Generate Transfer Code button
+            document.getElementById('sendBpBtn').addEventListener('click', () => {
+                const amount = document.getElementById('sendAmount').value;
+                const transferCode = walletInstance.generateTransferCode(amount);
+
+                if (transferCode) {
+                    document.getElementById('generatedCode').value = transferCode;
+                    document.getElementById('transferCodeOutput').classList.remove('hidden');
+
+                    // Set up WhatsApp share link
+                    const message = `I'm sending you ${parseFloat(amount).toFixed(2)} BP! Redeem it with this code: ${transferCode}\n\nOpen the Black POU app here to redeem: ${window.location.href}`;
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                    document.getElementById('whatsappShareLink').href = whatsappUrl;
+
+                    document.getElementById('sendAmount').value = ''; // Clear input
+                }
+            });
+
+            // Copy Generated Code button
+            document.getElementById('copyCodeBtn').addEventListener('click', () => {
+                const codeToCopy = document.getElementById('generatedCode').value;
+                if (codeToCopy) {
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = codeToCopy;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    walletInstance.showMessage("Transfer code copied to clipboard!");
+                }
+            });
+
+            // Redeem Code button
+            document.getElementById('redeemBpBtn').addEventListener('click', () => {
+                const codeToRedeem = document.getElementById('redeemCodeInput').value.trim();
+                if (codeToRedeem) {
+                    walletInstance.redeemTransferCode(codeToRedeem);
+                    document.getElementById('redeemCodeInput').value = ''; // Clear input
+                } else {
+                    walletInstance.showMessage("Error: Please enter a transfer code to redeem.");
+                }
+            });
+
+            // Buy Wheat button
+            document.getElementById('buyWheatBtn').addEventListener('click', () => {
+                const bpAmount = document.getElementById('buyBpAmount').value;
+                marketInstance.buyWheat(bpAmount, walletInstance);
+                document.getElementById('buyBpAmount').value = '';
+            });
+
+            // Sell Wheat button
+            document.getElementById('sellWheatBtn').addEventListener('click', () => {
+                const wheatAmount = document.getElementById('sellWheatAmount').value;
+                marketInstance.sellWheat(wheatAmount, walletInstance);
+                document.getElementById('sellWheatAmount').value = '';
+            });
+
+            // Removed Fluctuating Price button listener
+
+            // Copy Wallet ID button
+            document.getElementById('copyWalletIdBtn').addEventListener('click', () => {
+                const walletIdText = document.getElementById('userWalletId').innerText;
+                if (!walletIdText || walletIdText.includes("Generating")) {
+                    walletInstance.showMessage("Error: Wallet address not available yet.");
+                    return;
+                }
+                const tempInput = document.createElement('textarea');
+                tempInput.value = walletIdText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                walletInstance.showMessage("Your Wallet Address copied to clipboard!");
+            });
+
+            // Removed auto-fluctuate interval
+        });
+    </script>
+</body>
+
+</html>
